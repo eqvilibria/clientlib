@@ -1,0 +1,29 @@
+.gitignore
+  s_a4ef7a790a4ad2::t_a5f9e9a9aaa75f 1
+README.md
+  s_a4ef7a790a4ad2::t_54cc82cf8aa16c 1-37
+lib.js
+  s_a4ef7a790a4ad2::t_b4bfe4e2b9e046 1
+package.json
+  s_a4ef7a790a4ad2::t_ca050a65897283 1-9
+vue/components/CreativeProfileEditor.vue
+  s_a4ef7a790a4ad2::t_754e9502f25e89 1-406
+vue/components/index.js
+  s_a4ef7a790a4ad2::t_779f41310aec60 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2a7a672cafa401608026022dfba98c348783f911",
+  "prompts": {},
+  "sessions": {
+    "s_a4ef7a790a4ad2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "887eeece-9b22-4532-8ec7-dff8fca140c7",
+        "model": "unknown"
+      },
+      "human_author": "alchuev <alchuev@gmail.com>"
+    }
+  }
+}

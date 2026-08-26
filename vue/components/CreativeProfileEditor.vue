@@ -37,7 +37,8 @@
                                 @change="setValue(field, $event)"
                             ></v-select>
 
-                            <v-select
+                            <!-- Словарь длинный: значение набирают, а не выискивают в списке. -->
+                            <v-autocomplete
                                 v-else-if="field.control === 'MultiSelect'"
                                 :value="arrayValueOf(field)"
                                 :items="field.options"
@@ -53,7 +54,7 @@
                                 outlined
                                 dense
                                 @change="setValue(field, $event)"
-                            ></v-select>
+                            ></v-autocomplete>
 
                             <!-- Свободный ввод: подсказки не ограничивают, но нормализация обязательна -->
                             <v-combobox
@@ -68,6 +69,7 @@
                                 chips
                                 small-chips
                                 deletable-chips
+                                auto-select-first
                                 persistent-hint
                                 outlined
                                 dense
@@ -82,6 +84,7 @@
                                 :error-messages="errorFor(field)"
                                 :hint="hintFor(field)"
                                 :disabled="disabled"
+                                auto-select-first
                                 persistent-hint
                                 clearable
                                 outlined

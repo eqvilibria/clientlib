@@ -40,6 +40,7 @@
                             <!-- Словарь длинный: значение набирают, а не выискивают в списке. -->
                             <v-autocomplete
                                 v-else-if="field.control === 'MultiSelect'"
+                                :ref="`suggested-${field.name}`"
                                 :value="arrayValueOf(field)"
                                 :items="field.options"
                                 :label="fieldLabel(field)"
@@ -53,12 +54,14 @@
                                 persistent-hint
                                 outlined
                                 dense
+                                @focus="showSuggestions(field)"
                                 @change="setValue(field, $event)"
                             ></v-autocomplete>
 
                             <!-- Свободный ввод: подсказки не ограничивают, но нормализация обязательна -->
                             <v-combobox
                                 v-else-if="field.control === 'Combo'"
+                                :ref="`suggested-${field.name}`"
                                 :value="arrayValueOf(field)"
                                 :items="field.suggestions"
                                 :label="fieldLabel(field)"
@@ -73,11 +76,13 @@
                                 persistent-hint
                                 outlined
                                 dense
+                                @focus="showSuggestions(field)"
                                 @input="setFreeList(field, $event)"
                             ></v-combobox>
 
                             <v-combobox
                                 v-else-if="field.control === 'ComboSingle'"
+                                :ref="`suggested-${field.name}`"
                                 :value="valueOf(field)"
                                 :items="field.suggestions"
                                 :label="fieldLabel(field)"
@@ -89,6 +94,7 @@
                                 clearable
                                 outlined
                                 dense
+                                @focus="showSuggestions(field)"
                                 @input="setFreeValue(field, $event)"
                             ></v-combobox>
 
@@ -301,6 +307,17 @@ export default {
             }
 
             return source !== value;
+        },
+
+        /**
+         * Открывает список подсказок при попадании в поле. Сами по себе они появляются только на
+         * клик по стрелке или после первого набранного символа, а поле с чипами клик по свободному
+         * месту не ловит — так подсказки и остаются незамеченными, а значения набирают заново.
+         */
+        showSuggestions(field) {
+            const [control] = this.$refs[`suggested-${field.name}`] || [];
+
+            if (control) control.activateMenu();
         },
 
         errorFor(field) {

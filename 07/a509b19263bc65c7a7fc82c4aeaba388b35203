@@ -1,0 +1,20 @@
+vue/components/CreativeProfileEditor.vue
+  s_6d3c1008616185::t_c430565083dacb 43,57,64,79,85,97,312-320
+  s_6d3c1008616185::t_151b18965e5ea7 321-322
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.24",
+  "base_commit_sha": "07a509b19263bc65c7a7fc82c4aeaba388b35203",
+  "prompts": {},
+  "sessions": {
+    "s_6d3c1008616185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c58230fd-0d39-4e5d-ba56-c9ebfc00398f",
+        "model": "claude-opus-5"
+      },
+      "human_author": "alchuev <alchuev@gmail.com>"
+    }
+  }
+}

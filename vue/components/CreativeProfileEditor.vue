@@ -98,6 +98,83 @@
                                 @input="setFreeValue(field, $event)"
                             ></v-combobox>
 
+                            <!-- Ингредиент — это название, количество и мера, а не одна строка -->
+                            <div v-else-if="field.control === 'IngredientList'">
+                                <div class="text-caption grey--text mb-2">{{ fieldLabel(field) }}</div>
+
+                                <v-row
+                                    v-for="(row, rowIndex) in ingredientRows(field)"
+                                    :key="rowIndex"
+                                    dense
+                                    align="center"
+                                >
+                                    <v-col cols="12" md="6">
+                                        <v-combobox
+                                            :value="row.name"
+                                            :items="field.suggestions"
+                                            :label="t('profileIngredientName', 'Ингредиент')"
+                                            :disabled="disabled"
+                                            auto-select-first
+                                            hide-details
+                                            outlined
+                                            dense
+                                            @input="setIngredient(field, rowIndex, 'name', $event)"
+                                        ></v-combobox>
+                                    </v-col>
+
+                                    <v-col cols="5" md="3">
+                                        <v-text-field
+                                            :value="row.amount"
+                                            :label="t('profileIngredientAmount', 'Количество')"
+                                            :disabled="disabled"
+                                            type="number"
+                                            step="0.5"
+                                            hide-details
+                                            clearable
+                                            outlined
+                                            dense
+                                            @change="setIngredient(field, rowIndex, 'amount', $event)"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="5" md="2">
+                                        <v-select
+                                            :value="row.unit"
+                                            :items="field.options"
+                                            :label="t('profileIngredientUnit', 'Мера')"
+                                            :disabled="disabled"
+                                            hide-details
+                                            clearable
+                                            outlined
+                                            dense
+                                            @change="setIngredient(field, rowIndex, 'unit', $event)"
+                                        ></v-select>
+                                    </v-col>
+
+                                    <v-col cols="2" md="1" class="text-right">
+                                        <v-btn
+                                            icon
+                                            small
+                                            :disabled="disabled"
+                                            @click="removeIngredient(field, rowIndex)"
+                                        >
+                                            <v-icon small>mdi-close</v-icon>
+                                        </v-btn>
+                                    </v-col>
+                                </v-row>
+
+                                <v-btn small text color="primary" :disabled="disabled" @click="addIngredient(field)">
+                                    <v-icon left small>mdi-plus</v-icon>
+                                    {{ t('profileIngredientAdd', 'Добавить ингредиент') }}
+                                </v-btn>
+
+                                <div v-if="field.hint" class="text-caption grey--text mt-1">{{ hintFor(field) }}</div>
+
+                                <div v-for="(message, i) in errorFor(field)" :key="i" class="error--text text-caption">
+                                    {{ message }}
+                                </div>
+                            </div>
+
                             <v-text-field
                                 v-else-if="field.control === 'Number'"
                                 :value="valueOf(field)"
@@ -248,6 +325,8 @@ export default {
 
         /** Разбирает сохранённое значение поля: что форма принимает и что вынуждена отбросить. */
         accept(field, source) {
+            if (field.control === 'IngredientList') return this.acceptIngredients(source);
+
             if (field.control === 'Number') {
                 const parsed = Number.parseInt(source, 10);
 
@@ -273,6 +352,96 @@ export default {
             if (multiple) return { value: accepted, rejected };
 
             return { value: accepted.length ? accepted[0] : null, rejected: rejected.concat(accepted.slice(1)) };
+        },
+
+        /**
+         * Ингредиенты старых профилей — просто названия: превращаем их в строки списка без
+         * количества, чтобы правка не начиналась с потери состава блюда.
+         */
+        acceptIngredients(source) {
+            const accepted = [];
+            const rejected = [];
+
+            this.asList(source).forEach((item) => {
+                const entry = item && typeof item === 'object' ? item : { name: item };
+                const name = this.normalize(entry.name);
+
+                if (name === null) {
+                    rejected.push(String(entry.name === undefined ? item : entry.name));
+                    return;
+                }
+
+                if (accepted.some((row) => row.name === name)) return;
+
+                accepted.push(this.ingredient(name, entry.amount, entry.unit));
+            });
+
+            return { value: accepted, rejected };
+        },
+
+        /** Строка списка без пустых ключей: сервер хранит только заполненное. */
+        ingredient(name, amount, unit) {
+            const row = { name };
+            const parsed = Number.parseFloat(amount);
+
+            if (Number.isFinite(parsed) && parsed > 0) row.amount = parsed;
+            if (unit) row.unit = unit;
+
+            return row;
+        },
+
+        ingredientRows(field) {
+            return this.asList(this.value[field.name])
+                .map((item) => (item && typeof item === 'object' ? item : { name: item }));
+        },
+
+        setIngredient(field, index, key, raw) {
+            const rows = this.ingredientRows(field).map((row) => ({ ...row }));
+
+            if (!rows[index]) return;
+
+            if (key === 'name') {
+                const name = this.normalize(raw);
+
+                if (name === null) {
+                    const rule = this.t(
+                        'profileValueRule',
+                        'только латиница строчными буквами, цифры, пробел и дефис');
+
+                    this.$set(this.localErrors, field.name, [`«${String(raw).trim()}» — ${rule}`]);
+                    return;
+                }
+
+                rows[index].name = name;
+            } else if (key === 'amount') {
+                const parsed = Number.parseFloat(raw);
+
+                if (raw === null || raw === undefined || raw === '') {
+                    delete rows[index].amount;
+                } else if (!Number.isFinite(parsed) || parsed <= 0) {
+                    this.$set(this.localErrors, field.name, [
+                        this.t('profileAmountExpected', 'Количество — положительное число'),
+                    ]);
+                    return;
+                } else {
+                    rows[index].amount = parsed;
+                }
+            } else if (raw) {
+                rows[index].unit = raw;
+            } else {
+                delete rows[index].unit;
+            }
+
+            this.$set(this.localErrors, field.name, []);
+            this.emit(field, rows);
+        },
+
+        addIngredient(field) {
+            this.emit(field, this.ingredientRows(field).map((row) => ({ ...row })).concat([{ name: '' }]));
+        },
+
+        removeIngredient(field, index) {
+            this.emit(field, this.ingredientRows(field).filter((_, i) => i !== index).map((row) => ({ ...row })));
         },
 
         /** Закрытый словарь хранится в каноничном написании — сравниваем без учёта регистра. */
@@ -303,10 +472,19 @@ export default {
             if (Array.isArray(source) !== Array.isArray(value)) return true;
 
             if (Array.isArray(source)) {
-                return source.length !== value.length || source.some((item, index) => item !== value[index]);
+                return source.length !== value.length
+                    || source.some((item, index) => !this.same(item, value[index]));
             }
 
             return source !== value;
+        },
+
+        same(left, right) {
+            if (left && right && typeof left === 'object' && typeof right === 'object') {
+                return JSON.stringify(left) === JSON.stringify(right);
+            }
+
+            return left === right;
         },
 
         /**

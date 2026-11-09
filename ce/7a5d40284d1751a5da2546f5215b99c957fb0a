@@ -1,0 +1,21 @@
+README.md
+  s_4385d4c9c89891::t_cee600dd1659e1 3
+package.json
+  s_4385d4c9c89891::t_a5dbc9e978ceae 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ce7a5d40284d1751a5da2546f5215b99c957fb0a",
+  "prompts": {},
+  "sessions": {
+    "s_4385d4c9c89891": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1afef-ab7c-7261-99d3-caee5a0023d9",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "alchuev <alchuev@gmail.com>"
+    }
+  }
+}

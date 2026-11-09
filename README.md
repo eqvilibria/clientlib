@@ -1,8 +1,6 @@
 # eqvi-clientlib
 
-Общие Vue-компоненты фронтов Eqvi. Оба потребителя — координатор
-(`coordinator/Eqvi.Coordinator.Web/EqviCoordinatorClientApp`) и sphere
-(`sphere/Eqvi.Sphere.Web/EqviSphereClientApp`) — на одном стеке: Nuxt 2 + Vue 2 + Vuetify 2.
+Общие компоненты Eqvi для Nuxt 2, Vue 2 и Vuetify 2.
 
 Отдельно от `artialdev-clientlib`: та библиотека общая для всех проектов Artial Dev, и
 эквишным компонентам там не место.

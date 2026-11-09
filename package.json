@@ -1,7 +1,7 @@
 {
     "name": "eqvi-clientlib",
     "version": "1.0.0",
-    "description": "Общие Vue-компоненты фронтов Eqvi (координатор, sphere)",
+    "description": "Общие Vue-компоненты Eqvi",
     "main": "lib.js",
     "module": "lib.js",
     "private": true,
